@@ -1,45 +1,46 @@
 package web.dao;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import web.model.User;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
-public class UserDaoImp implements UserDao {
+public class UserDaoImp implements UserDao{
 
-    private final SessionFactory sessionFactory;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    @Autowired
-    private UserDaoImp (SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+
+    /*public UserDaoImp(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }*/
+
 
     @Override
     public void deleteUser(long id) {
-        Query<User> query = sessionFactory.getCurrentSession().createQuery("delete from User where id =:userId");
-        query.setParameter("userId", id);
-        query.executeUpdate();
+        entityManager.createQuery("delete from User where id =:userId")
+                .setParameter("userId", id)
+                .executeUpdate();
     }
 
     @Override
     public List<User> listUsers() {
-        List<User> allUsers = sessionFactory.getCurrentSession().createQuery("from User", User.class).getResultList();
-        return allUsers;
+        return entityManager.createQuery("from User", User.class).getResultList();
     }
 
     @Override
     public void addUser(User user) {
-        sessionFactory.getCurrentSession().saveOrUpdate(user);
+        entityManager.merge(user);
     }
 
     @Override
     public User getUser(long id) {
-        User user = sessionFactory.getCurrentSession().get(User.class, id);
+        User user = entityManager.find(User.class, id);
         return user;
     }
 }
