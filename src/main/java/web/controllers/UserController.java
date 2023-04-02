@@ -33,7 +33,7 @@ public class UserController {
         return "create_user";
     }
 
-    @PostMapping()
+    @PostMapping
     public String saveUser(@ModelAttribute("user") User user) {
         service.addUser(user);
         return "redirect:/";
@@ -46,10 +46,14 @@ public class UserController {
     }
 
     @GetMapping("/edit_user")
-    public String editUser(@RequestParam("id") long id, ModelMap model) {
-        User user = service.getUser(id);
-        model.addAttribute("user", user);
-        return "create_user";
+    public String editUser (@RequestParam("id") long id, ModelMap model) {
+        model.addAttribute("user", service.getUser(id));
+        return "edit_user";
     }
-
+    @PostMapping("/{id}")
+    public String update (@ModelAttribute("user") User user,
+                          @RequestParam("id") long id){
+        service.updateUser(id, user);
+        return "redirect:/";
+    }
 }
